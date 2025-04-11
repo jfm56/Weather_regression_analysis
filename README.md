@@ -1,74 +1,99 @@
-# Weather Data Linear Regression Analysis
+# Weather Data Logistic Regression Analysis
 
-This project analyzes weather data to predict precipitation type (none/rain/snow) using multiple environmental factors. The analysis uses a comprehensive linear regression model that provides detailed statistical measures and visualizations.
+This project analyzes weather data to predict precipitation type using binary logistic regression. It creates separate models for predicting rain and snow, providing detailed performance metrics and visualizations for each model.
 
 ## Problem Formulation
 
 ### Variables
-- **Dependent Variable (DV)**:
-  - Precipitation Type (categorical: none, rain, snow)
-  - Encoded as numeric values using LabelEncoder
-  - Note: While categorical, using linear regression helps understand relationships
+- **Dependent Variables**:
+  1. Rain Probability (binary: 0 or 1)
+  2. Snow Probability (binary: 0 or 1)
+  - Each precipitation type is modeled separately
+  - 'None' is represented as (0,0)
 
-- **Independent Variables (IV)**:
+- **Independent Variables**:
   1. Humidity (continuous, range: 0-1)
   2. Pressure (continuous, millibars)
   3. Temperature (continuous, Celsius)
   4. Wind Speed (continuous, km/h)
 
 ### Analysis Approach
-- **Method**: Multiple Linear Regression
-- **Purpose**: Understand relationships between weather conditions and precipitation
-- **Note**: For actual prediction tasks, a classification model would be more appropriate
+- **Method**: Binary Logistic Regression
+- **Purpose**: Predict probability of rain and snow based on weather conditions
+- **Advantages**: 
+  - More appropriate for binary classification
+  - Provides probability estimates
+  - Better handles categorical outcomes
 
 ## Analysis Results
 
-### Model Performance
-- R² Score: 0.33 (33% of variance explained)
-- F-statistic: 11,877.60
-- p-value: 1.11e-16
+### Rain Prediction Model
 
-### Sum of Squares
-- Total (TSS): 10,151.40
-- Regression (RSS): 3,350.25
-- Error (ESS): 6,801.14
+#### Performance Metrics
+- Accuracy: 90.00%
+- Precision: 50.00%
+- Recall: 33.33%
+- F1 Score: 40.00%
+- AUC-ROC: 0.963
 
-### Feature Coefficients
-- Humidity: -0.3994 (strongest effect)
-- Temperature: -0.0236 (moderate effect)
-- Wind Speed: -0.0055 (small effect)
-- Pressure: ~0.0000 (minimal effect)
-- Intercept: 1.7440
+#### Feature Coefficients
+- Temperature: 0.5934 (strongest positive impact)
+- Humidity: 0.3449 (moderate positive impact)
+- Pressure: -0.1390 (weak negative impact)
+- Wind Speed: -0.0679 (minimal impact)
 
-### Visualization
+### Snow Prediction Model
 
-#### Regression Analysis Plot
-![Regression Analysis](images/weather_regression.png)
+#### Performance Metrics
+- Accuracy: 93.33%
+- Precision: 75.00%
+- Recall: 75.00%
+- F1 Score: 75.00%
+- AUC-ROC: 0.962
 
-The visualization above shows four subplots, each demonstrating the relationship between a predictor variable and precipitation type:
+#### Feature Coefficients
+- Temperature: -0.5019 (strong negative impact)
+- Humidity: 0.4730 (strong positive impact)
+- Pressure: -0.0010 (minimal impact)
+- Wind Speed: -0.0161 (minimal impact)
 
-1. **Humidity vs. Precipitation**
-   - Strong negative correlation (β = -3.0053)
-   - Higher humidity tends to indicate rain/snow
-   - Most influential predictor
+### Visualizations
 
-2. **Pressure vs. Precipitation**
-   - Weak positive correlation (β = 0.1857)
-   - Less significant impact on precipitation type
+#### Feature Impact Analysis
 
-3. **Temperature vs. Precipitation**
-   - Moderate negative correlation (β = -0.2686)
-   - Lower temperatures associated with snow
-   - Higher temperatures tend toward no precipitation
+##### Rain Prediction Model
+![Rain Feature Impact](images/rain_feature_impact.png)
 
-4. **Wind Speed vs. Precipitation**
-   - Weak positive correlation (β = 0.1168)
-   - Minimal impact on precipitation type
+The plots above show how each feature affects the probability of rain:
+- Higher temperatures significantly increase rain probability
+- Higher humidity increases rain probability
+- Pressure and wind speed have minimal impact
 
-Each subplot includes:
-- Scatter points showing actual data
-- Red regression line indicating the trend
-- Gray shaded area showing 95% confidence interval
+##### Snow Prediction Model
+![Snow Feature Impact](images/snow_feature_impact.png)
+
+The plots show how each feature affects the probability of snow:
+- Lower temperatures significantly increase snow probability
+- Higher humidity increases snow probability
+- Pressure and wind speed have minimal impact
+
+#### Model Performance (ROC Curves)
+
+##### Rain Prediction ROC
+![Rain ROC Curve](images/rain_roc_curve.png)
+
+The ROC curve for rain prediction shows excellent model discrimination with an AUC of 0.963. This indicates the model's strong ability to distinguish between rain and no-rain conditions.
+
+##### Snow Prediction ROC
+![Snow ROC Curve](images/snow_roc_curve.png)
+
+The ROC curve for snow prediction shows similarly strong performance with an AUC of 0.962. The model effectively distinguishes between snow and no-snow conditions.
+
+Each feature impact plot shows:
+- Probability curve (red line) showing feature's effect on precipitation likelihood
+- X-axis: Feature values
+- Y-axis: Probability of precipitation
+- Steeper curves indicate stronger feature influence
 
 ### Detailed Interpretation
 
