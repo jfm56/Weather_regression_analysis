@@ -2,6 +2,19 @@
 
 This project analyzes weather data to predict precipitation type using binary logistic regression. It creates separate models for predicting rain and snow, providing detailed performance metrics and visualizations for each model.
 
+## Methodology Evolution
+
+The original dataset included a categorical variable, Precipitation Type, with three possible values: "none", "rain", and "snow". While this provided valuable information, treating it as a numerical variable for linear regression introduced limitations—most notably, the implicit assumption of an ordinal relationship between categories (e.g., snow > rain > none), which is not appropriate for categorical weather types.
+
+To improve model clarity and predictive performance, the data was restructured by splitting Precipitation Type into two separate binary classification targets:
+
+- **Rain**: 1 if precipitation was "rain", 0 otherwise
+- **Snow**: 1 if precipitation was "snow", 0 otherwise
+
+This allowed for the use of binary logistic regression, which is more suitable for categorical prediction tasks and enabled clearer interpretations of the relationship between weather variables and specific precipitation types.
+
+The updated approach yielded significantly stronger model performance compared to the initial linear regression strategy.
+
 ## Problem Formulation
 
 ### Variables
