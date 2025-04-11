@@ -1,22 +1,23 @@
 """Weather Data Analysis Script for predicting precipitation types using multiple features."""
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from linear_regression import LinearRegressionAnalysis
+from logistic_regression import LogisticRegressionAnalysis
 
 def prepare_data(dataframe):
-    """Prepare weather data for regression analysis.
+    """Prepare weather data for binary classification analysis.
 
     Args:
         dataframe: Pandas DataFrame containing weather data
 
     Returns:
-        tuple: (features, target, precipitation_classes)
+        tuple: (features, rain_target, snow_target)
     """
-    # Convert Precip Type to numeric using label encoding
-    label_encoder = LabelEncoder()
-    dataframe['Precip Type Numeric'] = label_encoder.fit_transform(
-        dataframe['Precip Type'].fillna('none')
-    )
+    # Fill missing values in precipitation type
+    dataframe['Precip Type'] = dataframe['Precip Type'].fillna('none')
+
+    # Create binary targets for rain and snow
+    rain_target = (dataframe['Precip Type'] == 'rain').astype(int)
+    snow_target = (dataframe['Precip Type'] == 'snow').astype(int)
 
     # Prepare features
     features = dataframe[[
@@ -26,14 +27,13 @@ def prepare_data(dataframe):
         'Wind Speed (km/h)'
     ]].copy()
 
-    # Handle any missing values
+    # Handle any missing values in features
     features = features.fillna(features.mean())
-    target = dataframe['Precip Type Numeric']
 
-    return features, target, label_encoder.classes_
+    return features, rain_target, snow_target
 
 def analyze_weather(file_path='/Users/jimmullen/Downloads/weatherHistory.csv'):
-    """Perform regression analysis on weather data and generate visualizations.
+    """Perform binary classification analysis for rain and snow prediction.
 
     Args:
         file_path: Path to the weather data CSV file
@@ -41,38 +41,72 @@ def analyze_weather(file_path='/Users/jimmullen/Downloads/weatherHistory.csv'):
     try:
         # Load and prepare data
         dataframe = pd.read_csv(file_path)
-        features, target, precip_classes = prepare_data(dataframe)
+        features, rain_target, snow_target = prepare_data(dataframe)
 
-        # Create and fit the model
-        model = LinearRegressionAnalysis()
-        model.fit(features, target)
+        # Create and fit models for rain and snow
+        rain_model = LogisticRegressionAnalysis()
+        snow_model = LogisticRegressionAnalysis()
 
-        # Print results
-        print("\nRegression Analysis Results:")
+        rain_model.fit(features, rain_target)
+        snow_model.fit(features, snow_target)
+
+        # Print results for rain prediction
+        print("\nRain Prediction Model:")
         print("-" * 50)
-        print(f"Precipitation Types: {precip_classes}")
-        print("\nModel Statistics:")
-        print(f"R² Score: {model.results['r2']:.4f}")
-        print(f"F-statistic: {model.results['f_statistic']:.4f}")
-        print(f"p-value: {model.results['p_value']:.4e}")
-        print("\nSum of Squares:")
-        print(f"Total (TSS): {model.results['total_sum_squares']:.4f}")
-        print(f"Regression (RSS): {model.results['regression_sum_squares']:.4f}")
-        print(f"Error (ESS): {model.results['error_sum_squares']:.4f}")
+        print("\nModel Performance:")
+        print(f"Accuracy: {rain_model.results['accuracy']:.4f}")
+        print(f"Precision: {rain_model.results['precision']:.4f}")
+        print(f"Recall: {rain_model.results['recall']:.4f}")
+        print(f"F1 Score: {rain_model.results['f1']:.4f}")
+        print(f"AUC-ROC: {rain_model.results['auc']:.4f}")
 
-        print("\nModel Coefficients:")
+        print("\nFeature Coefficients (Rain):")
         feature_names = ['Humidity', 'Pressure', 'Temperature', 'Wind Speed']
-        for name, coef in zip(feature_names, model.results['coefficients']):
+        for name, coef in zip(feature_names, rain_model.results['coefficients']):
             print(f"{name}: {coef:.4f}")
-        print(f"Intercept: {model.results['intercept']:.4f}")
+        print(f"Intercept: {rain_model.results['intercept']:.4f}")
 
-        # Create visualization
+        # Print results for snow prediction
+        print("\nSnow Prediction Model:")
+        print("-" * 50)
+        print("\nModel Performance:")
+        print(f"Accuracy: {snow_model.results['accuracy']:.4f}")
+        print(f"Precision: {snow_model.results['precision']:.4f}")
+        print(f"Recall: {snow_model.results['recall']:.4f}")
+        print(f"F1 Score: {snow_model.results['f1']:.4f}")
+        print(f"AUC-ROC: {snow_model.results['auc']:.4f}")
+
+        print("\nFeature Coefficients (Snow):")
+        for name, coef in zip(feature_names, snow_model.results['coefficients']):
+            print(f"{name}: {coef:.4f}")
+        print(f"Intercept: {snow_model.results['intercept']:.4f}")
+
+        # Create visualizations
         plot_names = ['Humidity', 'Pressure (mb)', 'Temperature (C)', 'Wind Speed (km/h)']
-        regression_plot = model.plot_regression(
-            "Precipitation Type Prediction", plot_names)
-        regression_plot.savefig('weather_regression.png',
-                              bbox_inches='tight', dpi=300)
-        print("\nVisualization saved as 'weather_regression.png'")
+        
+        # Feature impact plots
+        rain_plot = rain_model.plot_regression(
+            "Rain Prediction Model", plot_names)
+        rain_plot.savefig('images/rain_feature_impact.png',
+                         bbox_inches='tight', dpi=300)
+
+        snow_plot = snow_model.plot_regression(
+            "Snow Prediction Model", plot_names)
+        snow_plot.savefig('images/snow_feature_impact.png',
+                         bbox_inches='tight', dpi=300)
+
+        # ROC curves
+        rain_roc = rain_model.plot_roc_curve()
+        rain_roc.savefig('images/rain_roc_curve.png',
+                        bbox_inches='tight', dpi=300)
+
+        snow_roc = snow_model.plot_roc_curve()
+        snow_roc.savefig('images/snow_roc_curve.png',
+                        bbox_inches='tight', dpi=300)
+
+        print("\nVisualizations saved:")
+        print("- Feature impact: 'rain_feature_impact.png' and 'snow_feature_impact.png'")
+        print("- ROC curves: 'rain_roc_curve.png' and 'snow_roc_curve.png'")
 
     except FileNotFoundError as file_err:
         print(f"Error: Could not find weather data file - {str(file_err)}")
