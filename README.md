@@ -41,9 +41,34 @@ This project analyzes weather data to predict precipitation type (none/rain/snow
 - Intercept: 1.7440
 
 ### Visualization
-![Regression Analysis](weather_regression.png)
 
-The plots above show the relationship between each predictor variable and precipitation type. Each subplot demonstrates how the individual feature correlates with the precipitation type, with the red line showing the trend.
+#### Regression Analysis Plot
+![Regression Analysis](images/weather_regression.png)
+
+The visualization above shows four subplots, each demonstrating the relationship between a predictor variable and precipitation type:
+
+1. **Humidity vs. Precipitation**
+   - Strong negative correlation (β = -3.0053)
+   - Higher humidity tends to indicate rain/snow
+   - Most influential predictor
+
+2. **Pressure vs. Precipitation**
+   - Weak positive correlation (β = 0.1857)
+   - Less significant impact on precipitation type
+
+3. **Temperature vs. Precipitation**
+   - Moderate negative correlation (β = -0.2686)
+   - Lower temperatures associated with snow
+   - Higher temperatures tend toward no precipitation
+
+4. **Wind Speed vs. Precipitation**
+   - Weak positive correlation (β = 0.1168)
+   - Minimal impact on precipitation type
+
+Each subplot includes:
+- Scatter points showing actual data
+- Red regression line indicating the trend
+- Gray shaded area showing 95% confidence interval
 
 ### Detailed Interpretation
 

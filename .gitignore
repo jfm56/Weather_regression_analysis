@@ -40,5 +40,5 @@ htmlcov/
 .ipynb_checkpoints
 
 # Project specific
-weather_regression.png
 *.csv
+!sample_weather.csv

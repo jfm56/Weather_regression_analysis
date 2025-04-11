@@ -1,0 +1,9 @@
+Humidity,Pressure (millibars),Temperature (C),Wind Speed (km/h),Precip Type
+0.65,1010.2,20.5,12.5,none
+0.71,1008.5,18.2,15.8,rain
+0.8,1012.3,15.8,8.2,rain
+0.75,1009.8,22.1,10.1,none
+0.68,1011.0,19.4,14.3,snow
+0.72,1007.5,17.6,11.7,rain
+0.79,1013.2,16.2,9.4,snow
+0.83,1010.8,21.3,13.6,none
