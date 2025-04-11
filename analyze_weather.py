@@ -84,14 +84,16 @@ def analyze_weather(file_path='/Users/jimmullen/Downloads/weatherHistory.csv'):
         # Create visualizations
         plot_names = ['Humidity', 'Pressure (mb)', 'Temperature (C)', 'Wind Speed (km/h)']
         
-        # Feature impact plots
+        # Feature impact plots with probability curves
         rain_plot = rain_model.plot_regression(
-            "Rain Prediction Model", plot_names)
+            "Rain Prediction Model", plot_names,
+            input_features=features, target_values=rain_target)
         rain_plot.savefig('images/rain_feature_impact.png',
                          bbox_inches='tight', dpi=300)
 
         snow_plot = snow_model.plot_regression(
-            "Snow Prediction Model", plot_names)
+            "Snow Prediction Model", plot_names,
+            input_features=features, target_values=snow_target)
         snow_plot.savefig('images/snow_feature_impact.png',
                          bbox_inches='tight', dpi=300)
 

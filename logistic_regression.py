@@ -53,12 +53,14 @@ class LogisticRegressionAnalysis:
         """
         return self.model.predict_proba(input_features)[:, 1]
 
-    def plot_regression(self, title="Logistic Regression Analysis", feature_names=None):
-        """Create visualization of the logistic regression results.
+    def plot_regression(self, title="Logistic Regression Analysis", feature_names=None, input_features=None, target_values=None):
+        """Create visualization of the logistic regression results with probability curves.
 
         Args:
             title: Title for the plot
             feature_names: List of feature names for x-axis labels
+            input_features: DataFrame of feature variables used for training
+            target_values: Series of binary target values used for training
 
         Returns:
             matplotlib figure object
@@ -70,14 +72,46 @@ class LogisticRegressionAnalysis:
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
         fig.suptitle(title, fontsize=16, y=1.02)
 
-        # Plot feature coefficients
+        # Plot feature coefficients and probability curves
         axes = [ax1, ax2, ax3, ax4]
         for i, (name, coef) in enumerate(zip(feature_names, self.results['coefficients'])):
-            x_range = np.linspace(-3, 3, 100)
-            y = 1 / (1 + np.exp(-(coef * x_range + self.results['intercept'])))
+            if input_features is not None and target_values is not None:
+                # Get the current feature values
+                x_data = input_features.iloc[:, i]
+                
+                # Create a range for the probability curve
+                x_min, x_max = x_data.min(), x_data.max()
+                x_range = np.linspace(x_min - 0.1 * (x_max - x_min), 
+                                    x_max + 0.1 * (x_max - x_min), 100)
+                
+                # Calculate other features' mean values
+                other_features = input_features.drop(input_features.columns[i], axis=1)
+                other_features_mean = other_features.mean()
+                
+                # Create input matrix for prediction
+                X_pred = np.zeros((len(x_range), input_features.shape[1]))
+                other_idx = 0
+                for j in range(input_features.shape[1]):
+                    if j == i:
+                        X_pred[:, j] = x_range
+                    else:
+                        X_pred[:, j] = other_features_mean.iloc[other_idx]
+                        other_idx += 1
+                
+                # Calculate probabilities
+                y_pred = self.model.predict_proba(X_pred)[:, 1]
+                
+                # Plot probability curve
+                axes[i].plot(x_range, y_pred, 'r-', 
+                           label=f'Probability curve\nCoefficient: {coef:.4f}')
+                
+                # Plot actual data points
+                axes[i].scatter(x_data[target_values == 0], np.zeros(sum(target_values == 0)),
+                              c='blue', alpha=0.5, label='Negative class')
+                axes[i].scatter(x_data[target_values == 1], np.ones(sum(target_values == 1)),
+                              c='red', alpha=0.5, label='Positive class')
             
-            axes[i].plot(x_range, y, 'r-', label=f'Coefficient: {coef:.4f}')
-            axes[i].set_title(f'{name} Impact')
+            axes[i].set_title(f'{name} Impact on Probability')
             axes[i].set_xlabel(name)
             axes[i].set_ylabel('Probability')
             axes[i].grid(True)
