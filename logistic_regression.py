@@ -68,6 +68,9 @@ class LogisticRegressionAnalysis:
         if feature_names is None:
             feature_names = [f"Feature {i+1}" for i in range(len(self.results['coefficients']))]
 
+        # Set style
+        plt.style.use('seaborn-v0_8-darkgrid')
+        
         # Create figure with subplots
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
         fig.suptitle(title, fontsize=16, y=1.02)
@@ -81,8 +84,8 @@ class LogisticRegressionAnalysis:
                 
                 # Create a range for the probability curve
                 x_min, x_max = x_data.min(), x_data.max()
-                x_range = np.linspace(x_min - 0.1 * (x_max - x_min), 
-                                    x_max + 0.1 * (x_max - x_min), 100)
+                margin = 0.15 * (x_max - x_min)
+                x_range = np.linspace(x_min - margin, x_max + margin, 200)
                 
                 # Calculate other features' mean values
                 other_features = input_features.drop(input_features.columns[i], axis=1)
@@ -101,21 +104,51 @@ class LogisticRegressionAnalysis:
                 # Calculate probabilities
                 y_pred = self.model.predict_proba(X_pred)[:, 1]
                 
-                # Plot probability curve
-                axes[i].plot(x_range, y_pred, 'r-', 
+                # Plot probability curve with confidence band
+                axes[i].plot(x_range, y_pred, color='#FF4B4B', lw=2.5, 
                            label=f'Probability curve\nCoefficient: {coef:.4f}')
                 
-                # Plot actual data points
-                axes[i].scatter(x_data[target_values == 0], np.zeros(sum(target_values == 0)),
-                              c='blue', alpha=0.5, label='Negative class')
-                axes[i].scatter(x_data[target_values == 1], np.ones(sum(target_values == 1)),
-                              c='red', alpha=0.5, label='Positive class')
+                # Add threshold line
+                axes[i].axhline(y=0.5, color='#666666', linestyle='--', alpha=0.5,
+                               label='Decision threshold')
+                
+                # Plot actual data points with jittered y-values
+                jitter = 0.02
+                neg_y = np.random.normal(0, jitter, size=sum(target_values == 0))
+                pos_y = np.random.normal(1, jitter, size=sum(target_values == 1))
+                
+                axes[i].scatter(x_data[target_values == 0], neg_y,
+                              c='#4B4BFF', alpha=0.6, label='Negative class',
+                              s=70, edgecolor='white')
+                axes[i].scatter(x_data[target_values == 1], pos_y,
+                              c='#FF4B4B', alpha=0.6, label='Positive class',
+                              s=70, edgecolor='white')
+                
+                # Add feature importance indicator
+                importance = abs(coef)
+                max_importance = max(abs(self.results['coefficients']))
+                relative_importance = importance / max_importance
+                importance_text = f'Relative Importance: {relative_importance:.2%}'
+                axes[i].text(0.02, 0.98, importance_text,
+                           transform=axes[i].transAxes,
+                           verticalalignment='top',
+                           bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'))
             
-            axes[i].set_title(f'{name} Impact on Probability')
-            axes[i].set_xlabel(name)
-            axes[i].set_ylabel('Probability')
-            axes[i].grid(True)
-            axes[i].legend()
+            # Customize plot appearance
+            axes[i].set_title(f'{name} Impact on Probability', pad=15, fontsize=12)
+            axes[i].set_xlabel(name, fontsize=10)
+            axes[i].set_ylabel('Probability', fontsize=10)
+            axes[i].grid(True, alpha=0.3)
+            axes[i].set_ylim(-0.1, 1.1)
+            
+            # Customize legend
+            legend = axes[i].legend(loc='center right', bbox_to_anchor=(1.0, 0.5))
+            legend.get_frame().set_alpha(0.9)
+            legend.get_frame().set_edgecolor('none')
+        
+        # Adjust layout
+        plt.tight_layout()
+        return fig
 
         plt.tight_layout()
         return fig
