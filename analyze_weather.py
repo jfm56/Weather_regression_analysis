@@ -1,6 +1,5 @@
 """Weather Data Analysis Script for predicting precipitation types using multiple features."""
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from logistic_regression import LogisticRegressionAnalysis
 
 def prepare_data(dataframe):
@@ -83,7 +82,7 @@ def analyze_weather(file_path='/Users/jimmullen/Downloads/weatherHistory.csv'):
 
         # Create visualizations
         plot_names = ['Humidity', 'Pressure (mb)', 'Temperature (C)', 'Wind Speed (km/h)']
-        
+
         # Feature impact plots with probability curves
         rain_plot = rain_model.plot_regression(
             "Rain Prediction Model", plot_names,

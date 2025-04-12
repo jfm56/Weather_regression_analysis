@@ -2,7 +2,6 @@
 import os
 import pandas as pd
 import pytest
-import numpy as np
 from analyze_weather import prepare_data, analyze_weather
 
 @pytest.fixture(name='sample_weather_data')

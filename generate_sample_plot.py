@@ -7,16 +7,16 @@ from analyze_weather import analyze_weather
 np.random.seed(42)  # For reproducibility
 
 # Generate 30 samples
-n_samples = 30
+N_SAMPLES = 30
 data = {
-    'Humidity': np.random.uniform(0.3, 0.9, n_samples),
-    'Pressure (millibars)': np.random.uniform(980, 1020, n_samples),
-    'Temperature (C)': np.random.uniform(-5, 25, n_samples),
-    'Wind Speed (km/h)': np.random.uniform(0, 30, n_samples),
+    'Humidity': np.random.uniform(0.3, 0.9, N_SAMPLES),
+    'Pressure (millibars)': np.random.uniform(980, 1020, N_SAMPLES),
+    'Temperature (C)': np.random.uniform(-5, 25, N_SAMPLES),
+    'Wind Speed (km/h)': np.random.uniform(0, 30, N_SAMPLES),
 }
 
 # Create precipitation types with realistic conditions
-data['Precip Type'] = ['none'] * n_samples
+data['Precip Type'] = ['none'] * N_SAMPLES
 
 # Assign rain (warm temperatures, high humidity)
 rain_mask = (
