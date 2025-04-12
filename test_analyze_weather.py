@@ -27,21 +27,35 @@ def test_prepare_data(sample_weather_data):
     Args:
         sample_weather_data: Fixture providing sample weather DataFrame
     """
-    features, target, precip_classes = prepare_data(sample_weather_data)
+    features, rain_target, snow_target = prepare_data(sample_weather_data)
 
     # Check features
     assert isinstance(features, pd.DataFrame)
     assert features.shape == (5, 4)
     assert not features.isna().any().any()
 
-    # Check target
-    assert isinstance(target, pd.Series)
-    assert len(target) == 5
-    assert not target.isna().any()
+    # Check rain target
+    assert isinstance(rain_target, pd.Series)
+    assert len(rain_target) == 5
+    assert set(rain_target.unique()) <= {0, 1}  # Binary values only
+    assert not rain_target.isna().any()
+    assert sum(rain_target) == 2  # Two rain instances in sample data
 
-    # Check precipitation classes
-    assert isinstance(precip_classes, np.ndarray)
-    assert set(precip_classes) == {'none', 'rain', 'snow'}
+    # Check snow target
+    assert isinstance(snow_target, pd.Series)
+    assert len(snow_target) == 5
+    assert set(snow_target.unique()) <= {0, 1}  # Binary values only
+    assert not snow_target.isna().any()
+    assert sum(snow_target) == 1  # One snow instance in sample data
+
+    # Verify no overlap between rain and snow
+    assert not ((rain_target == 1) & (snow_target == 1)).any()
+
+    # Verify correct classification
+    assert rain_target[sample_weather_data['Precip Type'] == 'rain'].all()
+    assert snow_target[sample_weather_data['Precip Type'] == 'snow'].all()
+    assert (rain_target[sample_weather_data['Precip Type'] == 'none'] == 0).all()
+    assert (snow_target[sample_weather_data['Precip Type'] == 'none'] == 0).all()
 
 def test_prepare_data_with_missing_values():
     """Test if prepare_data handles missing values correctly."""
@@ -53,11 +67,20 @@ def test_prepare_data_with_missing_values():
         'Precip Type': ['none', 'rain', None, 'none', 'snow']
     }
     df = pd.DataFrame(data)
-    features, target, _ = prepare_data(df)
+    features, rain_target, snow_target = prepare_data(df)
 
     # Check that missing values are handled
     assert not features.isna().any().any()
-    assert not target.isna().any()
+    assert not rain_target.isna().any()
+    assert not snow_target.isna().any()
+
+    # Check binary values
+    assert set(rain_target.unique()) <= {0, 1}
+    assert set(snow_target.unique()) <= {0, 1}
+
+    # Check that missing precip type is treated as 'none'
+    assert rain_target[2] == 0  # Index where Precip Type is None
+    assert snow_target[2] == 0  # Index where Precip Type is None
 
 def test_analyze_weather_file_not_found(tmp_path):
     """Test analyze_weather handles missing file correctly."""
