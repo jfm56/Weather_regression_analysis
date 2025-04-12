@@ -104,47 +104,29 @@ class LogisticRegressionAnalysis:
                 # Calculate probabilities
                 y_pred = self.model.predict_proba(x_matrix)[:, 1]
 
-                # Plot probability curve with confidence band
-                axes[i].plot(x_range, y_pred, color='#FF4B4B', lw=2.5,
-                           label=f'Probability curve\nCoefficient: {coef:.4f}')
+                # Plot probability curve
+                axes[i].plot(x_range, y_pred, color='blue', lw=2,
+                           label=f'Coefficient: {coef:.4f}')
 
                 # Add threshold line
-                axes[i].axhline(y=0.5, color='#666666', linestyle='--', alpha=0.5,
+                axes[i].axhline(y=0.5, color='red', linestyle='--',
                                label='Decision threshold')
 
-                # Plot actual data points with jittered y-values
-                jitter = 0.02
-                neg_y = np.random.normal(0, jitter, size=sum(target_values == 0))
-                pos_y = np.random.normal(1, jitter, size=sum(target_values == 1))
-
-                axes[i].scatter(x_data[target_values == 0], neg_y,
-                              c='#4B4BFF', alpha=0.6, label='Negative class',
-                              s=70, edgecolor='white')
-                axes[i].scatter(x_data[target_values == 1], pos_y,
-                              c='#FF4B4B', alpha=0.6, label='Positive class',
-                              s=70, edgecolor='white')
-
-                # Add feature importance indicator
-                importance = abs(coef)
-                max_importance = max(abs(self.results['coefficients']))
-                relative_importance = importance / max_importance
-                importance_text = f'Relative Importance: {relative_importance:.2%}'
-                axes[i].text(0.02, 0.98, importance_text,
-                           transform=axes[i].transAxes,
-                           verticalalignment='top',
-                           bbox={'facecolor': 'white', 'alpha': 0.8, 'edgecolor': 'none'})
+                # Plot actual data points
+                axes[i].scatter(x_data[target_values == 0], np.zeros_like(x_data[target_values == 0]),
+                              c='red', alpha=0.5, label='Negative class')
+                axes[i].scatter(x_data[target_values == 1], np.ones_like(x_data[target_values == 1]),
+                              c='blue', alpha=0.5, label='Positive class')
 
             # Customize plot appearance
-            axes[i].set_title(f'{name} Impact on Probability', pad=15, fontsize=12)
-            axes[i].set_xlabel(name, fontsize=10)
-            axes[i].set_ylabel('Probability', fontsize=10)
-            axes[i].grid(True, alpha=0.3)
+            axes[i].set_title(f'{name}')
+            axes[i].set_xlabel(name)
+            axes[i].set_ylabel('Probability')
+            axes[i].grid(True)
             axes[i].set_ylim(-0.1, 1.1)
 
-            # Customize legend
-            legend = axes[i].legend(loc='center right', bbox_to_anchor=(1.0, 0.5))
-            legend.get_frame().set_alpha(0.9)
-            legend.get_frame().set_edgecolor('none')
+            # Add legend
+            axes[i].legend()
 
         # Adjust layout
         plt.tight_layout()
@@ -159,16 +141,16 @@ class LogisticRegressionAnalysis:
         fig, ax = plt.subplots(figsize=(8, 8))
         fpr, tpr = self.results['roc_curve']
 
-        ax.plot(fpr, tpr, color='darkorange', lw=2,
-                label=f'ROC curve (AUC = {self.results["auc"]:.2f})')
-        ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        ax.plot(fpr, tpr, color='blue', lw=2,
+                label=f'ROC (AUC = {self.results["auc"]:.2f})')
+        ax.plot([0, 1], [0, 1], color='red', lw=2, linestyle='--')
 
         ax.set_xlim([0.0, 1.0])
         ax.set_ylim([0.0, 1.05])
         ax.set_xlabel('False Positive Rate')
         ax.set_ylabel('True Positive Rate')
-        ax.set_title('Receiver Operating Characteristic (ROC) Curve')
-        ax.legend(loc="lower right")
+        ax.set_title('ROC Curve')
+        ax.legend()
         ax.grid(True)
 
         return fig
