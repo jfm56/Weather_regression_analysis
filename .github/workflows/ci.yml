@@ -56,7 +56,7 @@ jobs:
       uses: docker/login-action@v2
       with:
         username: jmullen029
-        password: ${{ secrets.DOCKER_TOKEN }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Extract metadata for Docker
       id: meta
