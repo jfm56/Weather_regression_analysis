@@ -1,19 +1,44 @@
-"""Generate sample plot for README documentation."""
+"""Generate sample plots for binary classification of precipitation types."""
 import pandas as pd
+import numpy as np
 from analyze_weather import analyze_weather
 
-# Create sample weather data
+# Create more comprehensive sample weather data
+np.random.seed(42)  # For reproducibility
+
+# Generate 30 samples
+n_samples = 30
 data = {
-    'Humidity': [0.65, 0.71, 0.80, 0.75, 0.68, 0.72, 0.79, 0.83],
-    'Pressure (millibars)': [1010.2, 1008.5, 1012.3, 1009.8, 1011.0, 1007.5, 1013.2, 1010.8],
-    'Temperature (C)': [20.5, 18.2, 15.8, 22.1, 19.4, 17.6, 16.2, 21.3],
-    'Wind Speed (km/h)': [12.5, 15.8, 8.2, 10.1, 14.3, 11.7, 9.4, 13.6],
-    'Precip Type': ['none', 'rain', 'rain', 'none', 'snow', 'rain', 'snow', 'none']
+    'Humidity': np.random.uniform(0.3, 0.9, n_samples),
+    'Pressure (millibars)': np.random.uniform(980, 1020, n_samples),
+    'Temperature (C)': np.random.uniform(-5, 25, n_samples),
+    'Wind Speed (km/h)': np.random.uniform(0, 30, n_samples),
 }
+
+# Create precipitation types with realistic conditions
+data['Precip Type'] = ['none'] * n_samples
+
+# Assign rain (warm temperatures, high humidity)
+rain_mask = (
+    (data['Temperature (C)'] > 5) &
+    (data['Humidity'] > 0.7)
+)
+data['Precip Type'] = np.where(rain_mask, 'rain', data['Precip Type'])
+
+# Assign snow (cold temperatures, moderate humidity)
+snow_mask = (
+    (data['Temperature (C)'] < 2) &
+    (data['Humidity'] > 0.6)
+)
+data['Precip Type'] = np.where(snow_mask, 'snow', data['Precip Type'])
 
 # Save to CSV
 df = pd.DataFrame(data)
 df.to_csv('sample_weather.csv', index=False)
 
-# Run analysis to generate plot
+# Print data distribution
+print("\nData Distribution:")
+print(df['Precip Type'].value_counts())
+
+# Run analysis to generate plots
 analyze_weather('sample_weather.csv')
